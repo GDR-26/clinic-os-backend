@@ -92,6 +92,7 @@ const rescheduleAppointment = async (rescheduleData) => {
 };
 
 module.exports = {
+  callN8n,
   getAvailableSlots,
   bookAppointment,
   findAppointment,

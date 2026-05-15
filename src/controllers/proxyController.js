@@ -108,4 +108,54 @@ const rescheduleAppointment = async (req, res) => {
   }
 };
 
-module.exports = { getSlots, bookAppointment, findAppointment, rescheduleAppointment };
+/**
+ * markAttendance - POST /api/proxy/attendance
+ * Called by dashboard to mark attended/not_attended
+ * Requires JWT login
+ */
+const markAttendance = async (req, res) => {
+  try {
+    const { bookingId, action } = req.body;
+
+    // Validate required fields
+    const requiredCheck = validateRequired(req.body, ["bookingId", "action"]);
+    if (!requiredCheck.valid) return sendError(res, requiredCheck.message);
+
+    // Only allow valid actions
+    if (!["attended", "not_attended"].includes(action)) {
+      return sendError(res, "Action must be 'attended' or 'not_attended'");
+    }
+
+    // Call n8n mark attendance webhook
+    const result = await n8nService.callN8n(
+      "mark-attendance",
+      "POST",
+      { bookingId, action }
+    );
+
+    // Log the action
+    await createAuditLog({
+      action: action === "attended"
+        ? AUDIT_ACTIONS.ATTENDANCE_MARKED
+        : AUDIT_ACTIONS.NO_SHOW_MARKED,
+      userId: req.user.id,
+      clinicId: req.user.clinicId,
+      entityType: "appointment",
+      entityId: bookingId,
+      details: { bookingId, action },
+      ipAddress: getClientIp(req),
+    });
+
+    sendSuccess(res, `Appointment marked as ${action}`, result);
+  } catch (error) {
+    sendServerError(res, error);
+  }
+};
+
+module.exports = {
+  getSlots,
+  bookAppointment,
+  findAppointment,
+  rescheduleAppointment,
+  markAttendance
+};

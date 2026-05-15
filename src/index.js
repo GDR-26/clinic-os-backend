@@ -87,7 +87,7 @@ app.use("/api/auth", authRoutes); // Login, logout, reset password
 app.use("/api/users", verifyToken, userRoutes);         // User management
 app.use("/api/clinic", verifyToken, clinicRoutes);      // Clinic settings
 app.use("/api/keys", verifyToken, apiKeyRoutes);        // API key management
-app.use("/api/proxy", verifyToken, proxyRoutes);        // n8n webhook proxy
+app.use("/api/proxy", proxyRoutes);        // n8n webhook proxy (mixed auth)
 app.use("/api/audit", verifyToken, auditRoutes);        // Audit logs
 
 // ─────────────────────────────────────────
