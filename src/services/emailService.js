@@ -17,10 +17,10 @@
 const nodemailer = require("nodemailer");
 
 // Create email transporter once (reused for all emails)
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp.gmail.com",
   port: parseInt(process.env.SMTP_PORT) || 587,
-  secure: false, // Use TLS (not SSL)
+  secure: false,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
