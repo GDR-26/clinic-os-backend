@@ -19,12 +19,14 @@
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.7",
     "uuid": "^9.0.0",
-    "validator": "^13.11.0"
+    "validator": "^13.11.0",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }
+
