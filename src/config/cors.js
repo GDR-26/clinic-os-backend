@@ -16,7 +16,7 @@
 // List of domains allowed to call our API
 const ALLOWED_ORIGINS = [
   "https://smile-appointment.pages.dev",      // Patient booking form
-  "https://smile-dental-dashboard.netlify.app", // Staff dashboard
+  "https://smile-dental-dash.netlify.app",    // Staff dashboard
   "http://localhost:3000",                     // Local development
   "http://localhost:5173",                     // Vite dev server
   "http://localhost:8080",                     // Other local dev
