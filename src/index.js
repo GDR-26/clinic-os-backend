@@ -43,6 +43,14 @@ const { verifyToken } = require("./middleware/auth");
 const app = express();
 
 // ─────────────────────────────────────────
+// TRUST PROXY
+// Railway runs behind a reverse proxy
+// This tells Express to trust the X-Forwarded-For header
+// Required for rate limiting to work correctly
+// ─────────────────────────────────────────
+app.set("trust proxy", 1);
+
+// ─────────────────────────────────────────
 // SECURITY MIDDLEWARE
 // These run on EVERY request before it reaches any route
 // ─────────────────────────────────────────
