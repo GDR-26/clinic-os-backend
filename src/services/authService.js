@@ -46,11 +46,16 @@ const RESET_TOKEN_EXPIRES_HOURS = 1;     // Password reset link valid for 1 hour
  */
 const loginUser = async (email, password, ipAddress) => {
   // ── Step 1: Find user by email ──
+  console.log("Login attempt for email:", email.toLowerCase().trim());
+
   const { data: user, error: userError } = await supabase
     .from("users")
     .select("*")
     .eq("email", email.toLowerCase().trim())
     .single();
+
+  console.log("Supabase user found:", user ? "YES" : "NO");
+  console.log("Supabase error:", userError?.message || "none");
 
   // Always log failed attempts (even if user doesn't exist)
   // This prevents "user enumeration" attacks
@@ -81,6 +86,7 @@ const loginUser = async (email, password, ipAddress) => {
 
   // ── Step 4: Verify password ──
   const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+  console.log("Password valid:", isPasswordValid);
 
   if (!isPasswordValid) {
     // Increment failed attempts
