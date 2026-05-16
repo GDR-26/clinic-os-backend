@@ -46,26 +46,37 @@ const RESET_TOKEN_EXPIRES_HOURS = 1;     // Password reset link valid for 1 hour
  */
 const loginUser = async (email, password, ipAddress) => {
   // ── Step 1: Find user by email ──
-  console.log("Login attempt for email:", email.toLowerCase().trim());
+  const cleanEmail = email.toLowerCase().trim();
+  console.log("Login attempt for email:", cleanEmail);
+  console.log("Email length:", cleanEmail.length);
+  console.log("Supabase URL:", process.env.SUPABASE_URL?.substring(0, 30));
+
+  // First try to get ALL users to test connection
+  const { data: allUsers, error: allError } = await supabase
+    .from("users")
+    .select("id, email, role");
+
+  console.log("All users count:", allUsers?.length || 0);
+  console.log("All users error:", allError?.message || "none");
+  if (allUsers) {
+    allUsers.forEach(u => console.log("User in DB:", u.email, "length:", u.email.length));
+  }
 
   const { data: user, error: userError } = await supabase
     .from("users")
     .select("*")
-    .eq("email", email.toLowerCase().trim())
+    .eq("email", cleanEmail)
     .single();
 
   console.log("Supabase user found:", user ? "YES" : "NO");
   console.log("Supabase error:", userError?.message || "none");
 
-  // Always log failed attempts (even if user doesn't exist)
-  // This prevents "user enumeration" attacks
   if (userError || !user) {
     await createAuditLog({
       action: AUDIT_ACTIONS.LOGIN_FAILED,
       details: { email, reason: "user_not_found" },
       ipAddress,
     });
-    // Return generic message — don't reveal if email exists
     throw new Error("Invalid email or password.");
   }
 
