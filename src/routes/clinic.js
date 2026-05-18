@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
   try {
     const { data: clinic, error } = await supabase
       .from("clinics")
-      .select("id, name, email, phone, address, plan, status, created_at")
+      .select("*")
       .eq("id", req.clinicId)
       .single();
 
