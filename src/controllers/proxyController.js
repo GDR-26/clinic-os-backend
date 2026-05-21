@@ -109,6 +109,46 @@ const rescheduleAppointment = async (req, res) => {
 };
 
 /**
+ * cancelAppointment - POST /api/proxy/cancel
+ * Cancels an existing appointment (delete calendar + update sheet + send email)
+ */
+const cancelAppointment = async (req, res) => {
+  try {
+    const { bookingId, eventId, name, email, service, date, time, phone } = req.body;
+
+    // Required: bookingId + eventId (matches Cancel Engine WF validation)
+    const requiredCheck = validateRequired(req.body, ["bookingId", "eventId"]);
+    if (!requiredCheck.valid) return sendError(res, requiredCheck.message);
+
+    const result = await n8nService.cancelAppointment({
+      bookingId,
+      eventId,
+      name: name || "",
+      email: email || "",
+      service: service || "",
+      date: date || "",
+      time: time || "",
+      phone: phone || "",
+    });
+
+    // Log cancellation in audit table
+    await createAuditLog({
+      action: AUDIT_ACTIONS.APPOINTMENT_CANCELLED,
+      userId: req.user?.id || null,
+      clinicId: req.clinicId,
+      entityType: "appointment",
+      entityId: bookingId,
+      details: { bookingId, name, service, date, time },
+      ipAddress: getClientIp(req),
+    });
+
+    sendSuccess(res, "Appointment cancelled successfully", result);
+  } catch (error) {
+    sendServerError(res, error);
+  }
+};
+
+/**
  * markAttendance - POST /api/proxy/attendance
  * Called by dashboard to mark attended/not_attended
  * Requires JWT login
@@ -157,5 +197,6 @@ module.exports = {
   bookAppointment,
   findAppointment,
   rescheduleAppointment,
+  cancelAppointment,
   markAttendance
 };

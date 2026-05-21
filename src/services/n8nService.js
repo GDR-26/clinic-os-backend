@@ -91,10 +91,19 @@ const rescheduleAppointment = async (rescheduleData) => {
   return callN8n("form-reschedule", "POST", rescheduleData);
 };
 
+/**
+ * cancelAppointment - Cancels an appointment
+ * Calls Cancel Appointment Engine WF in n8n
+ */
+const cancelAppointment = async (cancelData) => {
+  return callN8n("form-cancel", "POST", cancelData);
+};
+
 module.exports = {
   callN8n,
   getAvailableSlots,
   bookAppointment,
   findAppointment,
   rescheduleAppointment,
+  cancelAppointment, 
 };
