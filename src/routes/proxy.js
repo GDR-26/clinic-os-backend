@@ -42,6 +42,9 @@ router.post("/find", proxyController.findAppointment);
 // POST /api/proxy/reschedule
 router.post("/reschedule", proxyController.rescheduleAppointment);
 
+// POST /api/proxy/cancel
+router.post("/cancel", bookingRateLimiter, proxyController.cancelAppointment);
+
 // ─────────────────────────────────────────
 // PROTECTED ROUTES — Login required
 // Used by staff on dashboard
