@@ -40,7 +40,7 @@ This backend doesn't make scheduling decisions — that's the AI/workflow layer'
 
 Clinic OS Backend is the middle layer in the overall Clinic OS system: the dashboard (frontend) never talks to n8n directly, and n8n never holds its own user accounts or permission logic. Every request from the dashboard is authenticated and authorized here first, and every call out to the workflow layer is proxied through this backend so that webhook URLs and API keys stay server-side.
 
-![Clinic OS Backend Architecture](assets/backend-architecture.png)
+![Clinic OS Backend Architecture](Clinic-OS-backend-system-architecture.png)
 
 ---
 
