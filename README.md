@@ -88,13 +88,21 @@ The codebase follows a standard layered Express architecture, with each layer ow
 ## Folder Structure
 
 ```
-src/
-├── config/         → App configuration (Supabase, CORS, rate limiting)
-├── controllers/    → Handle HTTP requests/responses
-├── middleware/     → Auth, role, clinic isolation, audit logging
-├── routes/         → API endpoint definitions
-├── services/       → Business logic
-└── utils/          → Validators, response helpers
+clinic-os-backend/
+│
+├── src/
+│   ├── config/      → App configuration (Supabase, CORS, rate limiting)
+│   ├── controllers/ → Handle HTTP requests/responses
+│   ├── middleware/ → Auth, role, clinic isolation, audit logging
+│   ├── routes/     → API endpoint definitions
+│   ├── services/   → Business logic
+│   ├── utils/      → Validators, response helpers
+│   └── index.js
+│
+├── supabase_schema.sql
+├── .env.example
+├── package.json
+└── README.md
 ```
 
 ---
