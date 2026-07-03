@@ -294,4 +294,4 @@ If you're interested in Applied AI, workflow automation, or building operational
 
 * 💼 **LinkedIn:** https://linkedin.com/in/dhruva-reddy-gaddam
 * 💻 **GitHub:** https://github.com/GDR-26
-* 🌐 **Portfolio:** *Coming Soon*
+* 🌐 **Portfolio:** https://gdr-26-portfolio.netlify.app/
