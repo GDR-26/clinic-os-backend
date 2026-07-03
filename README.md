@@ -293,5 +293,5 @@ The broader lesson was about where this backend sits relative to the AI layer in
 If you're interested in Applied AI, workflow automation, or building operational AI systems, I'd be happy to connect.
 
 * 💼 **LinkedIn:** https://linkedin.com/in/dhruva-reddy-gaddam
-* 💻 **GitHub:** https://github.com/GDR-26
+* 📧 **Email:** **dhruvareddy26@gmail.com**
 * 🌐 **Portfolio:** https://gdr-26-portfolio.netlify.app/
