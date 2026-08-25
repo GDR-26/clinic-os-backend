@@ -14,32 +14,36 @@
  * ============================================================
  */
 
-const nodemailer = require("nodemailer");
+const N8N_EMAIL_WEBHOOK_URL = process.env.N8N_EMAIL_WEBHOOK_URL;
+const N8N_EMAIL_WEBHOOK_TOKEN = process.env.N8N_EMAIL_WEBHOOK_TOKEN;
 
-// Create email transporter once (reused for all emails)
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+if (!N8N_EMAIL_WEBHOOK_URL || !N8N_EMAIL_WEBHOOK_TOKEN) {
+  console.warn(
+    "Warning: N8N_EMAIL_WEBHOOK_URL or N8N_EMAIL_WEBHOOK_TOKEN not set — emails will fail to send."
+  );
+}
 
 /**
  * sendEmail - Base function for sending any email
  */
 const sendEmail = async ({ to, subject, html }) => {
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || "Smile Dental <noreply@smiledental.com>",
-      to,
-      subject,
-      html,
+    const response = await fetch(N8N_EMAIL_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Webhook-Token": N8N_EMAIL_WEBHOOK_TOKEN,
+      },
+      body: JSON.stringify({ to, subject, html }),
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Email webhook error (${response.status}): ${errorText}`);
+    }
+
+    return await response.json();
   } catch (error) {
-    // Log but don't crash — email failure shouldn't break the app
     console.error("Email send failed:", error.message);
     throw error;
   }

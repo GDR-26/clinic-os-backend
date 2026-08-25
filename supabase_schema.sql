@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS clinics (
   address     TEXT,
   plan        TEXT DEFAULT 'starter' CHECK (plan IN ('starter', 'growth', 'pro')),
   status      TEXT DEFAULT 'active' CHECK (status IN ('active', 'suspended')),
+  dashboard_webhook_url  TEXT,
+  dashboard_token        TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW(),
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );

@@ -24,19 +24,16 @@ if (!process.env.SUPABASE_SERVICE_KEY) {
   throw new Error("Missing environment variable: SUPABASE_SERVICE_KEY");
 }
 
-// Remove trailing slash if present
-const supabaseUrl = process.env.SUPABASE_URL.replace(/\/$/, "");
-
 const supabase = createClient(
-  supabaseUrl,
+  process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY,
   {
-    auth: {
+    auth: { 
       autoRefreshToken: false,
       persistSession: false,
     },
     realtime: {
-      transport: ws,
+      transport: ws, // Fix for Node.js < 22
     },
   }
 );
