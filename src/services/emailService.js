@@ -105,7 +105,7 @@ const sendWelcomeEmail = async ({ to, name, role, loginUrl, tempPassword }) => {
           <p style="margin: 0;"><strong>Email:</strong> ${to}</p>
           <p style="margin: 8px 0 0;"><strong>Temporary Password:</strong> ${tempPassword}</p>
         </div>
-        <p style="color: #E65100; font-weight: bold;">⚠️ Please change your password after first login.</p>
+        <p style="color: #E65100; font-weight: bold;">⚠️ Please use this password to log in below. If you'd like it changed, contact your clinic admin.</p>
         <div style="text-align: center; margin: 24px 0;">
           <a href="${loginUrl}"
              style="background: #00897B; color: white; padding: 14px 28px;

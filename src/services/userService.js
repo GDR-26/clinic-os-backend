@@ -17,13 +17,23 @@ const emailService = require("./emailService");
 const { createAuditLog, AUDIT_ACTIONS } = require("../middleware/audit");
 
 /**
- * generateTempPassword - Creates a random temporary password
+ * generateTempPassword - Creates a memorable temporary password
+ * Pattern: firstname + 2-digit random number + last 2 chars of clinic ID
  */
-const generateTempPassword = () => {
-  const chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  let password = "";
-  for (let i = 0; i < 10; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+const generateTempPassword = (fullName, clinicId) => {
+  const namePart =
+    (fullName || "user")
+      .trim()
+      .split(" ")[0]
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "") || "user";
+
+  const randomTwo = Math.floor(Math.random() * 90 + 10);
+  const clinicSuffix = (clinicId || "").replace(/-/g, "").slice(-2) || "00";
+
+  let password = `${namePart}${randomTwo}${clinicSuffix}`;
+  while (password.length < 8) {
+    password += Math.floor(Math.random() * 10);
   }
   return password;
 };
@@ -64,7 +74,7 @@ const createUser = async ({ email, fullName, role, phone, clinicId, createdByUse
   }
 
   // Generate temporary password
-  const tempPassword = generateTempPassword();
+  const tempPassword = generateTempPassword(fullName, clinicId);
   const passwordHash = await bcrypt.hash(tempPassword, 12);
 
   // Create user
@@ -228,4 +238,5 @@ module.exports = {
   updateUser,
   disableUser,
   enableUser,
+  generateTempPassword,
 };
