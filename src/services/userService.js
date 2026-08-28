@@ -105,7 +105,7 @@ const createUser = async ({ email, fullName, role, phone, clinicId, createdByUse
       to: email,
       name: fullName,
       role,
-      loginUrl: `${process.env.FRONTEND_URL}/login`,
+      loginUrl: process.env.FRONTEND_URL, 
       tempPassword,
     });
   } catch (emailError) {
