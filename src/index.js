@@ -33,6 +33,7 @@ const clinicRoutes = require("./routes/clinic");
 const apiKeyRoutes = require("./routes/apiKeys");
 const proxyRoutes = require("./routes/proxy");
 const auditRoutes = require("./routes/audit");
+const dashboardRoutes = require("./routes/dashboard");
 
 // Import auth middleware — protects routes that need login
 const { verifyToken } = require("./middleware/auth");
@@ -95,7 +96,8 @@ app.use("/api/auth", authRoutes); // Login, logout, reset password
 app.use("/api/users", verifyToken, userRoutes);         // User management
 app.use("/api/clinic", verifyToken, clinicRoutes);      // Clinic settings
 app.use("/api/keys", verifyToken, apiKeyRoutes);        // API key management
-app.use("/api/proxy", proxyRoutes);        // n8n webhook proxy (mixed auth)
+app.use("/api/proxy", proxyRoutes);                     // n8n webhook proxy (mixed auth)
+app.use("/api/dashboard-data", dashboardRoutes);        // Secure proxy for n8n dashboard data (JWT check is inside the route itself)
 app.use("/api/audit", verifyToken, auditRoutes);        // Audit logs
 
 // ─────────────────────────────────────────

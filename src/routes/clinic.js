@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
   try {
     const { data: clinic, error } = await supabase
       .from("clinics")
-      .select("*")
+      .select("id, name, email, phone, address, plan, status, created_at, updated_at")
       .eq("id", req.clinicId)
       .single();
 
@@ -44,7 +44,7 @@ router.put("/settings", requireAdmin, async (req, res) => {
       .from("clinics")
       .update(updates)
       .eq("id", req.clinicId)
-      .select()
+      .select("id, name, email, phone, address, plan, status, created_at, updated_at")
       .single();
 
     if (error) throw error;

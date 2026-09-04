@@ -52,11 +52,26 @@ router.post("/cancel", bookingRateLimiter, proxyController.cancelAppointment);
 
 // POST /api/proxy/attendance
 // Mark appointment attended/not_attended
+// Can cancel or reschedule appointments
 router.post(
   "/attendance",
   verifyToken,
   requirePermission("MARK_ATTENDANCE"),
   proxyController.markAttendance
+);
+
+router.post(
+  "/staff-cancel",
+  verifyToken,
+  requirePermission("CANCEL_APPOINTMENT"),
+  proxyController.cancelAppointment
+);
+
+router.post(
+  "/staff-reschedule",
+  verifyToken,
+  requirePermission("RESCHEDULE_APPOINTMENT"),
+  proxyController.rescheduleAppointment
 );
 
 module.exports = router;
