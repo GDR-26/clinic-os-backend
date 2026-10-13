@@ -75,7 +75,13 @@ const getVerifiedAppointment = async (bookingId, phone) => {
   const phoneDigits = digitsOnly(phone);
   if (!id || phoneDigits.length < 10) return null;
 
-  const result = await n8nService.findAppointment(id, "");
+  let result;
+  try {
+    result = await n8nService.findAppointment(id, "");
+  } catch (err) {
+    console.error("getVerifiedAppointment lookup failed:", err.message);
+    return null;
+  }
 
   let candidates = [];
   if (result && result.status === "multiple_found") {
@@ -114,7 +120,7 @@ const findAppointment = async (req, res) => {
     // PUBLIC request (no logged-in user): require Booking ID + phone, verified server-side
     if (!req.user) {
       const verified = bookingId && phone ? await getVerifiedAppointment(bookingId, phone) : null;
-      if (!verified) return sendSuccess(res, "Appointment found", { status: "not_found" });
+            if (!verified || !isEligibleAppointment(verified)) return sendSuccess(res, "Appointment found", { status: "not_found" });
       return sendSuccess(res, "Appointment found", verified);
     }
 
