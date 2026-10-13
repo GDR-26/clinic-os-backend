@@ -60,12 +60,63 @@ const bookAppointment = async (req, res) => {
   }
 };
 
+
+/**
+ * getVerifiedAppointment - PUBLIC routes only.
+ * Looks up by Booking ID alone (phone sent empty so form-find cannot echo it),
+ * then checks the STORED phone against the supplied phone.
+ * Returns the trusted record, or null if it cannot be verified.
+ */
+const digitsOnly = (v) => String(v || "").replace(/\D/g, "");
+const INELIGIBLE_STATUSES = ["cancelled", "attended", "not_attended"];
+
+const getVerifiedAppointment = async (bookingId, phone) => {
+  const id = String(bookingId || "").trim().toUpperCase();
+  const phoneDigits = digitsOnly(phone);
+  if (!id || phoneDigits.length < 10) return null;
+
+  const result = await n8nService.findAppointment(id, "");
+
+  let candidates = [];
+  if (result && result.status === "multiple_found") {
+    try {
+      candidates = typeof result.bookings === "string" ? JSON.parse(result.bookings) : (result.bookings || []);
+    } catch (e) {
+      candidates = [];
+    }
+  } else if (result && result.status !== "not_found") {
+    candidates = [result];
+  }
+
+  const match = candidates.find((r) => {
+    if (!r) return false;
+    const storedDigits = digitsOnly(r.phone);
+    return (
+      String(r.bookingId || "").trim().toUpperCase() === id &&
+      storedDigits.length >= 10 &&
+      storedDigits.slice(-10) === phoneDigits.slice(-10)
+    );
+  });
+  return match || null;
+};
+
+const isEligibleAppointment = (record) =>
+  !INELIGIBLE_STATUSES.includes(String(record.status || "").toLowerCase());
+
+
 /**
  * findAppointment - POST /api/proxy/find
  */
 const findAppointment = async (req, res) => {
   try {
-    const { bookingId, phone } = req.body;
+        const { bookingId, phone } = req.body;
+
+    // PUBLIC request (no logged-in user): require Booking ID + phone, verified server-side
+    if (!req.user) {
+      const verified = bookingId && phone ? await getVerifiedAppointment(bookingId, phone) : null;
+      if (!verified) return sendSuccess(res, "Appointment found", { status: "not_found" });
+      return sendSuccess(res, "Appointment found", verified);
+    }
 
     if (!bookingId && !phone) {
       return sendError(res, "Please provide either a Booking ID or phone number.");
@@ -83,7 +134,19 @@ const findAppointment = async (req, res) => {
  */
 const rescheduleAppointment = async (req, res) => {
   try {
-    const { bookingId, eventId, new_booking_time, phone, email } = req.body;
+    let { bookingId, eventId, new_booking_time, phone, email } = req.body;
+
+    // PUBLIC request (no logged-in user): verify ownership, then use trusted values only
+    if (!req.user) {
+      if (!new_booking_time) return sendError(res, "new_booking_time is required.");
+      const verified = await getVerifiedAppointment(bookingId, phone);
+      if (!verified) return sendError(res, "Unable to verify this appointment. Please check your Booking ID and phone number.");
+      if (!isEligibleAppointment(verified)) return sendError(res, "This appointment can no longer be changed.");
+      bookingId = verified.bookingId;
+      eventId = verified.eventId;
+      phone = verified.phone;
+      email = verified.email;
+    }
 
     const requiredCheck = validateRequired(req.body, ["bookingId", "eventId", "new_booking_time"]);
     if (!requiredCheck.valid) return sendError(res, requiredCheck.message);
@@ -114,7 +177,22 @@ const rescheduleAppointment = async (req, res) => {
  */
 const cancelAppointment = async (req, res) => {
   try {
-    const { bookingId, eventId, name, email, service, date, time, phone } = req.body;
+    let { bookingId, eventId, name, email, service, date, time, phone } = req.body;
+
+    // PUBLIC request (no logged-in user): verify ownership, then use trusted values only
+    if (!req.user) {
+      const verified = await getVerifiedAppointment(bookingId, phone);
+      if (!verified) return sendError(res, "Unable to verify this appointment. Please check your Booking ID and phone number.");
+      if (!isEligibleAppointment(verified)) return sendError(res, "This appointment can no longer be changed.");
+      bookingId = verified.bookingId;
+      eventId = verified.eventId;
+      name = verified.name;
+      email = verified.email;
+      service = verified.service;
+      date = verified.date;
+      time = verified.time;
+      phone = verified.phone;
+    }
 
     // Required: bookingId + eventId (matches Cancel Engine WF validation)
     const requiredCheck = validateRequired(req.body, ["bookingId", "eventId"]);
